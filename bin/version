@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# $1 - New version number
+
+if [ $# -ne 1 ]; then
+    echo Usage: ./bin/version version
+    exit 0
+fi
+
+[[ "$PWD" =~ "scripts" ]] && cd ..
+
+# Set the new version number
+mvn versions:set -DnewVersion="$1" && mvn clean package -DskipTests

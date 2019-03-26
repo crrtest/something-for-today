@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+[[ "$PWD" =~ "bin" ]] && cd ..
+if [[ $1 = "-c" || $1 = "--check" ]]; then
+    echo "--------------- Checking Formatting ---------------"
+    mvn com.coveo:fmt-maven-plugin:check
+else
+    echo "------------ Formatting -------------"
+    mvn com.coveo:fmt-maven-plugin:format
+fi

@@ -1,0 +1,11 @@
+FROM 674907502808.dkr.ecr.us-east-1.amazonaws.com/ws-docker-java8-corretto:11
+USER root
+RUN curl -O https://websystems.ramseysolutions.net/nexus/repository/central/org/flywaydb/flyway-commandline/5.2.4/flyway-commandline-5.2.4-linux-x64.tar.gz
+RUN tar -xzf flyway-commandline-5.2.4-linux-x64.tar.gz
+ADD src/main/resources/db/migration migration
+RUN chown -R docker:docker /migration
+RUN chown -R docker:docker /flyway-5.2.4
+WORKDIR /flyway-5.2.4
+USER docker
+RUN curl -O https://websystems.ramseysolutions.net/nexus/service/local/repo_groups/public/content/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar
+CMD ["./flyway","-X","-url=${DATABASE_URL}","-driver=mysql-connector-java-8.0.13.jar","-user=${DATABASE_USER}","-password=${DATABASE_PASSWORD}","-schemas=${DATABASE_SCHEMA}","-locations=filesystem:/migration/","migrate"]

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+[[ "$PWD" =~ "bin" ]] && cd ..
+if [[ $1 = "-u" || $1 = "--unit" ]]; then
+    echo "--------------- Running unit tests ---------------"
+    mvn clean test
+else
+    echo "------------ Running full test suite -------------"
+    mvn clean verify
+fi

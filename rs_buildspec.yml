@@ -1,0 +1,79 @@
+rs_build:
+  language: java
+  docker:
+    build: true
+migration_envs:
+  - name: DATABASE_URL
+    value: 'jdbc:mysql://shared-services-db.{{ domain_prefix }}ramseysolutions.net:3306/true'
+  - name: DATABASE_USER
+    value: '{{ env }}.migration_ddl.service.buzz.user'
+    private: 1
+  - name: DATABASE_PASSWORD
+    value: '{{ env }}.migration_ddl.service.buzz.password'
+    private: 1
+  - name: DATABASE_SCHEMA
+    value: 'true'
+migration_test_only: []
+migration_qa_only: []
+migration_prod_only: []
+rs_migration:
+  enabled: true
+  docker_file: Dockerfile.db
+  build_context: .
+  environment_variables:
+    test: '{{ migration_envs|union(migration_test_only) }}'
+    qa: '{{ migration_envs|union(migration_qa_only) }}'
+    prod: '{{ migration_envs|union(migration_prod_only) }}'
+all_environments:
+  - name: SERVER_PORT
+    value: '8443'
+  - name: SERVER_SSL_ENABLED
+    value: 'true'
+  - name: SERVER_SSL_KEY_ALIAS
+    value: selfsigned
+  - name: SERVER_SSL_KEY_STORE
+    value: /app/certificate.pkcs12
+  - name: SERVER_SSL_KEY_STORE_PASSWORD
+    value: password
+  - name: SPRING_PROFILES_ACTIVE
+    value: '{{ env }}'
+  - name: NEW_RELIC_APP_NAME
+    value: '{{ env }}-{{ product }}-{{ app_name }}'
+  - name: NEW_RELIC_LICENSE_KEY
+    value: shared.newrelic.lampogroup.license_key
+    private: true
+  - name: SPRING_DATASOURCE_URL
+    value: 'jdbc:mysql://shared-services-db.{{ domain_prefix }}ramseysolutions.net:3306/true'
+  - name: SPRING_DATASOURCE_USERNAME
+    value: '{{ env }}.ws.buzz.db_username'
+    private: true
+  - name: SPRING_DATASOURCE_PASSWORD
+    value: '{{ env }}.ws.buzz.db_password'
+    private: true
+test_only: []
+qa_only: []
+prod_only:
+  - name: SPRING_PROFILES_ACTIVE
+    value: production
+rs_environment_variables:
+  dev:
+    - name: SPRING_PROFILES_ACTIVE
+      value: development
+    - name: SPRING_DATASOURCE_URL
+      value: 'jdbc:mysql://db:3306/true?autoReconnect=true&useSSL=false'
+    - name: SPRING_DATASOURCE_USERNAME
+      value: root
+    - name: SPRING_DATASOURCE_PASSWORD
+      value: ''
+  build:
+    - name: MAVEN_TARGET
+      value: 'clean deploy -DwithEffectivePom sonar:sonar'
+    - name: CREATE_DB
+      value: 'true'
+    - name: DB_NAME
+      value: 'true'
+    - name: RUN_MIGRATIONS
+      value: 'no'
+  test: '{{ all_environments|union(test_only) }}'
+  qa: '{{ all_environments|union(qa_only) }}'
+  prod: '{{ all_environments|union(prod_only) }}'

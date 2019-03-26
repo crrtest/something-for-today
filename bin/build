@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "--------------- Building the project ---------------"
+mvn clean package -DskipTests

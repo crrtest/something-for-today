@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+echo "--------------- Setting up the database ---------------"
+docker-compose down
+docker-compose up --build migrate

@@ -1,0 +1,27 @@
+version: '3'
+services:
+  web:
+    build: .
+    volumes:
+    - "${PWD}/rs_buildspec.yml:/rs_buildspec.yml"
+    - "${HOME}/.aws/credentials:/home/docker/.aws/credentials"
+    depends_on:
+    - migrate
+    ports:
+    - 8080:8080
+    command: ["wait-for-it", "db:3306", "--", "java", "-jar", "/app/buzz.jar"]
+  db:
+    image: mysql:5.7
+    environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    - MYSQL_DATABASE=true
+    ports:
+    - 3306:3306
+  migrate:
+    depends_on:
+    - db
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    entrypoint: ["wait-for-it", "db:3306", "--"]
+    command: ["./flyway","-X","-url=jdbc:mysql://db:3306","-driver=mysql-connector-java-8.0.13.jar","-user=root","-schemas=true","-locations=filesystem:/migration/","migrate"]

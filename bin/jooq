@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "--------------- Running mvn jooq-codegen:generate ---------------"
+mvn jooq-codegen:generate
